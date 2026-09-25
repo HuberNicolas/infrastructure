@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars (gitignored) and fill in.
+
+# Hetzner Console → project → Security → API tokens → read/write
+hcloud_token = ""
+
+# Your public IP, so SSH and the Coolify setup port are not open to the world (curl -4 ifconfig.me)
+admin_cidrs = ["203.0.113.10/32"]
+
+# server_type             = "cx33"
+# location                = "nbg1"
+# ssh_public_key_path     = "~/.ssh/id_ed25519.pub"
+# coolify_setup_port_open = true

@@ -1,0 +1,36 @@
+#cloud-config
+# First boot of the server: updates, SSH hardening, swap, automatic security updates, Coolify.
+# Progress: ssh root@<ip> 'tail -f /var/log/cloud-init-output.log'
+
+package_update: true
+package_upgrade: true
+packages:
+  - unattended-upgrades
+  - fail2ban
+
+# The thesis API (PyTorch) and three databases share 8 GB RAM; swap absorbs short peaks
+swap:
+  filename: /swapfile
+  size: 4G
+
+write_files:
+  # Key-only login. Root stays allowed (with a key) because Coolify manages the server over SSH as root
+  - path: /etc/ssh/sshd_config.d/10-hardening.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin prohibit-password
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  - path: /etc/sysctl.d/90-swap.conf
+    content: |
+      vm.swappiness = 10
+
+runcmd:
+  - sysctl --system
+  - systemctl restart ssh
+  - systemctl enable --now fail2ban
+  # Installs Docker, Coolify and its Traefik proxy: https://coolify.io/docs/get-started/installation
+  - curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash

@@ -1,0 +1,139 @@
+# SDG Tag Heroes (master's thesis, UZH): Nuxt frontend, FastAPI backend, MariaDB, MongoDB and Qdrant.
+# Only the frontend and the API are public; the databases are reachable inside the stack network only
+# (for maintenance: SSH tunnel, see docs/sdg-tag-heroes-data.md).
+#
+# Coolify: resource type "Docker Compose", this file, domains
+#   frontend → https://sdg-tag-heroes.<domain>:3000
+#   api      → https://sdg-tag-heroes-api.<domain>:8001
+# SERVICE_PASSWORD_* and SERVICE_BASE64_* are generated once by Coolify and kept across deployments.
+# Environment variables to set by hand: see .env.example.
+
+x-mariadb-env: &mariadb-env
+  MARIADB_DATABASE: igcl
+  MARIADB_USER: igcl
+  MARIADB_PASSWORD: ${SERVICE_PASSWORD_MARIADB}
+
+x-mongodb-env: &mongodb-env
+  MONGO_INITDB_ROOT_USERNAME: sdg
+  MONGO_INITDB_ROOT_PASSWORD: ${SERVICE_PASSWORD_MONGODB}
+
+services:
+  frontend:
+    image: ghcr.io/hubernicolas/sdg-tag-heroes-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      # Declares the public URL of this service on port 3000 (Coolify magic variable)
+      PUBLIC_URL: ${SERVICE_URL_FRONTEND_3000}
+      # The browser calls the API directly
+      NUXT_PUBLIC_API_URL: ${SERVICE_URL_API}
+      NUXT_PUBLIC_MAP_PARTITIONS: ${MAP_PARTITIONS:-1000}
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  api:
+    image: ghcr.io/hubernicolas/sdg-tag-heroes-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      <<: [*mariadb-env, *mongodb-env]
+      PUBLIC_URL: ${SERVICE_URL_API_8001}
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: "27017"
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      # Signs the JWTs
+      SECRET_KEY: ${SERVICE_BASE64_64_JWT}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+      # Aurora (thesis data) or Dvdblk (dummy dataset)
+      PREDICTION_MODEL: ${PREDICTION_MODEL:-Dvdblk}
+      # Optional: only the GPT features need it
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - api-models:/data/api
+      - api-cache:/cache
+      - api-logs:/logs
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+
+  mariadb:
+    image: mariadb:11.4
+    restart: unless-stopped
+    command: --innodb-buffer-pool-size=256M
+    environment:
+      <<: *mariadb-env
+      MARIADB_ROOT_PASSWORD: ${SERVICE_PASSWORD_MARIADBROOT}
+      # The thesis ran on 11.0; upgrade existing data files on start
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  mongodb:
+    image: mongo:8.0
+    restart: unless-stopped
+    # Default cache is half of the host RAM; the explanations do not need that much
+    command: --wiredTigerCacheSizeGB 0.5
+    environment:
+      <<: *mongodb-env
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  qdrant:
+    # Same minor version as the thesis snapshots (v1.12.1)
+    image: qdrant/qdrant:v1.12.6
+    restart: unless-stopped
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      # The image has no curl or wget
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+volumes:
+  api-models:
+  api-cache:
+  api-logs:
+  mariadb-data:
+  mongodb-data:
+  qdrant-data:
