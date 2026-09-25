@@ -1,0 +1,35 @@
+# Tower Defense (2021, SoPra FS21 group 10): Spring Boot 2 / Java 15 server with an in-memory H2 database and a
+# React client. The client has the API address baked in at build time (images/catalog.json), so the server must be
+# reachable at https://tower-defense-api.<domain>.
+#
+# Coolify: resource type "Docker Compose", this file, domains
+#   server → https://tower-defense-api.<domain>:8080
+#   client → https://tower-defense.<domain>:80
+
+services:
+  server:
+    image: ghcr.io/hubernicolas/tower-defense-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - SERVICE_URL_SERVER_8080
+      # Optional: without a key the game uses clear weather
+      - WeatherKey=${WEATHER_KEY:-}
+      # Java 15 is container aware; keep the heap inside the memory limit
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    # No volume: the game state lives in H2 in memory and resets on every deployment, as it did on Heroku
+
+  client:
+    image: ghcr.io/hubernicolas/tower-defense-client:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - SERVICE_URL_CLIENT_80
+    depends_on:
+      - server
+    deploy:
+      resources:
+        limits:
+          memory: 64M

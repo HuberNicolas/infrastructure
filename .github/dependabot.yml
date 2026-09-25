@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule:
+      interval: monthly
+
+  # Base images of the Dockerfiles in images/ and the database images of the stacks
+  - package-ecosystem: docker
+    directories: ["/images/*"]
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: docker-compose
+    directories: ["/stacks/*"]
+    schedule:
+      interval: monthly

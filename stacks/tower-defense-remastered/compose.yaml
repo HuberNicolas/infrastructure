@@ -1,0 +1,15 @@
+# Tower Defense Remastered: the game rewritten as a static Vite/React app, no backend.
+#
+# Coolify: resource type "Docker Compose", this file, domain
+#   game → https://towers.<domain>:8080
+
+services:
+  game:
+    image: ghcr.io/hubernicolas/tower-defense-remastered:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - SERVICE_URL_GAME_8080
+    deploy:
+      resources:
+        limits:
+          memory: 32M

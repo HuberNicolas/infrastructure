@@ -1,0 +1,39 @@
+[
+  {
+    "name": "tower-defense-server",
+    "stack": "tower-defense",
+    "repository": "HuberNicolas/tower-defense",
+    "context": "server",
+    "dockerfile": "source/server/Dockerfile"
+  },
+  {
+    "name": "tower-defense-client",
+    "stack": "tower-defense",
+    "repository": "HuberNicolas/tower-defense",
+    "context": "client",
+    "dockerfile": "source/client/Dockerfile",
+    "build_args": "REACT_APP_API_URL=https://tower-defense-api.{{DOMAIN}}"
+  },
+  {
+    "name": "tower-defense-remastered",
+    "stack": "tower-defense-remastered",
+    "repository": "HuberNicolas/tower-defense-remastered",
+    "context": ".",
+    "dockerfile": "infrastructure/images/tower-defense-remastered/Dockerfile",
+    "build_contexts": "config=infrastructure/images/tower-defense-remastered"
+  },
+  {
+    "name": "sdg-tag-heroes-api",
+    "stack": "sdg-tag-heroes",
+    "repository": "HuberNicolas/sdg-tag-heroes",
+    "context": ".",
+    "dockerfile": "infrastructure/images/sdg-tag-heroes-api/Dockerfile"
+  },
+  {
+    "name": "sdg-tag-heroes-frontend",
+    "stack": "sdg-tag-heroes",
+    "repository": "HuberNicolas/sdg-tag-heroes",
+    "context": ".",
+    "dockerfile": "source/deploy/frontend.prod.Dockerfile"
+  }
+]
