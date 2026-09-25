@@ -4,7 +4,7 @@
 # this image contains the code, runs without reload as a non-root user and reads its configuration from the
 # environment only.
 
-FROM python:3.10.14-slim
+FROM python:3.14.7-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
