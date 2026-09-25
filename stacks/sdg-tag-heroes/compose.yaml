@@ -94,7 +94,7 @@ services:
           memory: 768M
 
   mongodb:
-    image: mongo:8.0
+    image: mongo:8.3
     restart: unless-stopped
     # Default cache is half of the host RAM; the explanations do not need that much
     command: --wiredTigerCacheSizeGB 0.5
