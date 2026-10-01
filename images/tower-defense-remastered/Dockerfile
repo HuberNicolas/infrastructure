@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 # "config" is a named build context, not a stage
 # hadolint ignore=DL3022
 COPY --from=config nginx.conf /etc/nginx/conf.d/default.conf
