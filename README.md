@@ -15,22 +15,19 @@
 
 </div>
 
-| App | Project | Stack | URL | Status |
-|---|---|---|---|---|
-| **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` | Live |
-| **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` | Live |
-| **OkCupid Explorer** | Group project, UZH, 2022, rebuilt in 2026 | Vite · Vue 3 · ECharts (static) | `okcupid-explorer.<domain>` | Live |
-| **Tower Defense** | Software Engineering Lab (SoPra FS21), UZH, 2021 | Spring Boot 2 · Java 15 · H2 · React | `tower-defense.<domain>` | Planned |
+| App | Project | Stack | URL |
+|---|---|---|---|
+| **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` |
+| **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` |
+| **OkCupid Explorer** | Group project, UZH, 2022, rebuilt in 2026 | Vite · Vue 3 · ECharts (static) | `okcupid-explorer.<domain>` |
 
-Planned apps keep their stack and catalog entry, marked `"enabled": false` in
-[`images/catalog.json`](images/catalog.json) so the Images workflow skips them.
 
 ## Concept
 
 ```mermaid
 flowchart LR
     subgraph github[GitHub]
-        src["App repositories<br/><sub>sdg-tag-heroes · tower-defense-remastered<br/>okcupid-explorer · tower-defense</sub>"]
+        src["App repositories<br/><sub>sdg-tag-heroes · tower-defense-remastered<br/>okcupid-explorer</sub>"]
         infra["This repository<br/><sub>images/ · stacks/ · bootstrap/</sub>"]
         actions["Actions: Images<br/><sub>build · SBOM · provenance</sub>"]
         ghcr[("GHCR<br/><sub>ghcr.io/hubernicolas/*</sub>")]
@@ -40,7 +37,6 @@ flowchart LR
         fw{{"ufw + DOCKER-USER<br/><sub>22 · 80 · 443</sub>"}}
         traefik["Traefik<br/><sub>TLS via Let's Encrypt</sub>"]
         coolify["Coolify"]
-        td["tower-defense<br/><sub>client · server</sub>"]
         tdr["tower-defense-remastered<br/>okcupid-explorer<br/><sub>nginx</sub>"]
         sdg["sdg-tag-heroes<br/><sub>frontend · api · mariadb<br/>mongodb · qdrant</sub>"]
     end
@@ -51,7 +47,7 @@ flowchart LR
     actions -- "deploy webhook" --> coolify
     coolify -- "pull + compose up" --> ghcr
     coolify -. "stacks/*/compose.yaml" .-> infra
-    fw --> traefik --> td & tdr & sdg
+    fw --> traefik --> tdr & sdg
 ```
 
 **One server, one control plane.** Three small, low-traffic apps do not need Kubernetes or a managed database. A
@@ -111,7 +107,6 @@ Memory budget on the 12 GB server (limits in the compose files):
 | Coolify (dashboard, Postgres, Redis, realtime) and Traefik | ≈ 1.5 GB |
 | SDG Tag Heroes: API (PyTorch, sentence-transformers) | 4 GB |
 | SDG Tag Heroes: MariaDB · MongoDB · Qdrant · frontend | 1 · 2 · 1.5 · 0.25 GB |
-| Tower Defense: server (JVM) · client | 0.5 GB · 64 MB |
 | Tower Defense Remastered · OkCupid Explorer | 32 MB each |
 
 The limits are ceilings, not reservations; the real use is lower, and 4 GB of swap absorbs peaks.
@@ -134,8 +129,7 @@ The limits are ceilings, not reservations; the real use is lower, and 4 GB of sw
 - A VPS with Ubuntu 24.04 and at least 8 GB RAM (here: Contabo Cloud VPS 6, EU location, NVMe storage, no control
   panel)
 - A domain whose DNS you control
-- The app repositories on GitHub: `sdg-tag-heroes`, `tower-defense-remastered`, `okcupid-explorer` (and later
-  `tower-defense`)
+- The app repositories on GitHub: `sdg-tag-heroes`, `tower-defense-remastered`, `okcupid-explorer`
 
 ### 1. Prepare the server
 
@@ -181,7 +175,6 @@ One wildcard record covers all apps and the Coolify dashboard:
 
 | Kind | Name | Value |
 |---|---|---|
-| Variable | `DOMAIN` | `<domain>`, baked into the Tower Defense client |
 | Variable | `COOLIFY_URL` | `https://coolify.<domain>` |
 | Secret | `COOLIFY_TOKEN` | The Coolify API token |
 | Secret | `SOURCE_REPOS_TOKEN` | Only while app repositories are private: fine-grained token, *Contents: read* on them |
@@ -198,7 +191,6 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 | SDG Tag Heroes | `/stacks/sdg-tag-heroes/compose.yaml` | frontend → `https://sdg-tag-heroes.<domain>`, api → `https://sdg-tag-heroes-api.<domain>` | `sdg-tag-heroes` |
 | Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
 | OkCupid Explorer | `/stacks/okcupid-explorer/compose.yaml` | app → `https://okcupid-explorer.<domain>` | `okcupid-explorer` |
-| Tower Defense (planned) | `/stacks/tower-defense/compose.yaml` | client → `https://tower-defense.<domain>`, server → `https://tower-defense-api.<domain>` | `tower-defense` |
 
 The **tag** matters: the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from
 [`stacks/sdg-tag-heroes/.env.example`](stacks/sdg-tag-heroes/.env.example), deploy, then
@@ -243,10 +235,6 @@ jobs:
 
 ## Known limitations
 
-- **Tower Defense runs Java 15 and Node 14**, both end of life. They are kept on purpose: the 2021 code does not build
-  with newer versions. The game state is an in-memory H2 database and resets on every deployment.
-- **The Tower Defense client has its API address baked in** (Create React App), so the server must be at
-  `tower-defense-api.<DOMAIN>`, and changing the domain means rebuilding the image.
 - **The SDG Tag Heroes API image is large (several GB)**: `torch==2.1.1` from PyPI brings CUDA libraries the CPU
   server never uses. A CPU-only torch build would cut that, but it changes the thesis lockfile.
 - **Single server, no high availability.** An outage takes all apps down until the server is back or restored; for

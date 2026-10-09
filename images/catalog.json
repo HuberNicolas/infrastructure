@@ -1,22 +1,5 @@
 [
   {
-    "name": "tower-defense-server",
-    "stack": "tower-defense",
-    "repository": "HuberNicolas/tower-defense",
-    "context": "server",
-    "dockerfile": "source/server/Dockerfile",
-    "enabled": false
-  },
-  {
-    "name": "tower-defense-client",
-    "stack": "tower-defense",
-    "repository": "HuberNicolas/tower-defense",
-    "context": "client",
-    "dockerfile": "source/client/Dockerfile",
-    "build_args": "REACT_APP_API_URL=https://tower-defense-api.{{DOMAIN}}",
-    "enabled": false
-  },
-  {
     "name": "tower-defense-remastered",
     "stack": "tower-defense-remastered",
     "repository": "HuberNicolas/tower-defense-remastered",
