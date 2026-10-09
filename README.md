@@ -15,11 +15,14 @@
 
 </div>
 
-| App | Project | Stack | URL |
-|---|---|---|---|
-| **Tower Defense** | Software Engineering Lab (SoPra FS21), UZH, 2021 | Spring Boot 2 · Java 15 · H2 · React | `tower-defense.<domain>` |
-| **Tower Defense Remastered** | The same game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` |
-| **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` |
+| App | Project | Stack | URL | Status |
+|---|---|---|---|---|
+| **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` | Live |
+| **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` | Live |
+| **Tower Defense** | Software Engineering Lab (SoPra FS21), UZH, 2021 | Spring Boot 2 · Java 15 · H2 · React | `tower-defense.<domain>` | Planned |
+
+Planned apps keep their stack and catalog entry, marked `"enabled": false` in
+[`images/catalog.json`](images/catalog.json) so the Images workflow skips them.
 
 ## Concept
 
@@ -181,7 +184,7 @@ One wildcard record covers all apps and the Coolify dashboard:
 | Secret | `COOLIFY_TOKEN` | The Coolify API token |
 | Secret | `SOURCE_REPOS_TOKEN` | Only while app repositories are private: fine-grained token, *Contents: read* on them |
 
-Run **Actions → Images → Run workflow** with `all`. After the first push, make the three GHCR packages public
+Run **Actions → Images → Run workflow** with `all`. After the first push, make the GHCR packages public
 (Package settings → Change visibility), or log the server in to GHCR with a read-only token.
 
 ### 5. One resource per stack
@@ -190,9 +193,9 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 
 | Stack | Compose file | Domains (service → URL) | Tag |
 |---|---|---|---|
-| Tower Defense | `/stacks/tower-defense/compose.yaml` | client → `https://tower-defense.<domain>`, server → `https://tower-defense-api.<domain>` | `tower-defense` |
-| Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
 | SDG Tag Heroes | `/stacks/sdg-tag-heroes/compose.yaml` | frontend → `https://sdg-tag-heroes.<domain>`, api → `https://sdg-tag-heroes-api.<domain>` | `sdg-tag-heroes` |
+| Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
+| Tower Defense (planned) | `/stacks/tower-defense/compose.yaml` | client → `https://tower-defense.<domain>`, server → `https://tower-defense-api.<domain>` | `tower-defense` |
 
 The **tag** matters: the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from
 [`stacks/sdg-tag-heroes/.env.example`](stacks/sdg-tag-heroes/.env.example), deploy, then

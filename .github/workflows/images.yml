@@ -44,7 +44,7 @@ jobs:
         env:
           IMAGE: ${{ github.event.inputs.image || github.event.client_payload.image || 'all' }}
         run: |
-          images=$(jq -c --arg image "$IMAGE" '[.[] | select($image == "all" or .name == $image or .stack == $image)]' images/catalog.json)
+          images=$(jq -c --arg image "$IMAGE" '[.[] | select(.enabled != false) | select($image == "all" or .name == $image or .stack == $image)]' images/catalog.json)
           if [ "$images" = "[]" ]; then echo "::error::Unknown image '$IMAGE'"; exit 1; fi
           echo "images=$images" >> "$GITHUB_OUTPUT"
           echo "stacks=$(jq -c '[.[].stack] | unique' <<< "$images")" >> "$GITHUB_OUTPUT"

@@ -93,6 +93,7 @@ PartOf=docker.service
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 ExecStart=/usr/local/sbin/coolify-port-guard
 
 [Install]
@@ -109,7 +110,7 @@ else
 fi
 
 systemctl enable coolify-port-guard.service
-systemctl start coolify-port-guard.service
+systemctl restart coolify-port-guard.service
 
 log "Done"
 cat <<'EOF'

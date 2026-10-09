@@ -94,7 +94,8 @@ services:
           memory: 1G
 
   mongodb:
-    image: mongo:8.0
+    # Same as the sdg-tag-heroes repository: MongoDB 8.x crashes on Linux kernels >= 6.19 (SERVER-121912)
+    image: mongo:7.0
     restart: unless-stopped
     # Default cache is half of the host RAM; leave room for the other services
     command: --wiredTigerCacheSizeGB 1
