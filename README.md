@@ -21,6 +21,9 @@
 | **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` |
 | **OkCupid Explorer** | Group project, UZH, 2022, rebuilt in 2026 | Vite · Vue 3 · ECharts (static) | `okcupid-explorer.<domain>` |
 
+Also on the server, not public: [Hermes Agent](https://github.com/NousResearch/hermes-agent), a personal AI agent
+reached through a messenger ([`stacks/hermes-agent`](stacks/hermes-agent/compose.yaml)).
+
 
 ## Concept
 
@@ -108,6 +111,7 @@ Memory budget on the 12 GB server (limits in the compose files):
 | SDG Tag Heroes: API (PyTorch, sentence-transformers) | 4 GB |
 | SDG Tag Heroes: MariaDB · MongoDB · Qdrant · frontend | 1 · 2 · 1.5 · 0.25 GB |
 | Tower Defense Remastered · OkCupid Explorer | 32 MB each |
+| Hermes Agent (the model runs at the provider) | 2 GB |
 
 The limits are ceilings, not reservations; the real use is lower, and 4 GB of swap absorbs peaks.
 
@@ -191,10 +195,12 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 | SDG Tag Heroes | `/stacks/sdg-tag-heroes/compose.yaml` | frontend → `https://sdg-tag-heroes.<domain>`, api → `https://sdg-tag-heroes-api.<domain>` | `sdg-tag-heroes` |
 | Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
 | OkCupid Explorer | `/stacks/okcupid-explorer/compose.yaml` | app → `https://okcupid-explorer.<domain>` | `okcupid-explorer` |
+| Hermes Agent | `/stacks/hermes-agent/compose.yaml` | none | `hermes-agent` |
 
 Coolify asks for each domain as protocol (`https`), domain (the hostname only) and port; the port is the one in
 `expose` of the compose file (8080 for the static apps, 3000 for the frontend, 8001 for the API). The **tag** matters:
-the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from
+the Images workflow deploys by tag. Hermes Agent needs a one-time setup after its first deployment; see the comment
+at the top of its compose file. Set the environment variables of SDG Tag Heroes from
 [`stacks/sdg-tag-heroes/.env.example`](stacks/sdg-tag-heroes/.env.example), deploy, then
 [load its data](docs/sdg-tag-heroes-data.md).
 
