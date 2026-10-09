@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
-# Tower Defense Remastered: static Vite build served by an unprivileged nginx.
-# Context: the tower-defense-remastered repository. The nginx configuration comes from this folder through the
-# named build context "config" (docker buildx build --build-context config=images/tower-defense-remastered ...).
+# Static Vite apps (Tower Defense Remastered, OkCupid Explorer): `npm run build` served by an unprivileged nginx.
+# Context: the app folder of the source repository (the one with package.json). The nginx configuration comes from
+# this folder through the named build context "config":
+#   docker buildx build --build-context config=images/static-site -f images/static-site/Dockerfile <app folder>
 
-FROM node:22-alpine AS build
+# Both apps pin Node 24 in their .nvmrc
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund

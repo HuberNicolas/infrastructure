@@ -1,0 +1,5 @@
+# Used by BuildKit for this Dockerfile (<Dockerfile>.dockerignore); the source repositories have none
+.git
+node_modules
+dist
+*.local

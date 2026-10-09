@@ -19,6 +19,7 @@
 |---|---|---|---|---|
 | **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` | Live |
 | **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` | Live |
+| **OkCupid Explorer** | Group project, UZH, 2022, rebuilt in 2026 | Vite · Vue 3 · ECharts (static) | `okcupid-explorer.<domain>` | Live |
 | **Tower Defense** | Software Engineering Lab (SoPra FS21), UZH, 2021 | Spring Boot 2 · Java 15 · H2 · React | `tower-defense.<domain>` | Planned |
 
 Planned apps keep their stack and catalog entry, marked `"enabled": false` in
@@ -29,7 +30,7 @@ Planned apps keep their stack and catalog entry, marked `"enabled": false` in
 ```mermaid
 flowchart LR
     subgraph github[GitHub]
-        src["App repositories<br/><sub>tower-defense · tower-defense-remastered<br/>sdg-tag-heroes</sub>"]
+        src["App repositories<br/><sub>sdg-tag-heroes · tower-defense-remastered<br/>okcupid-explorer · tower-defense</sub>"]
         infra["This repository<br/><sub>images/ · stacks/ · bootstrap/</sub>"]
         actions["Actions: Images<br/><sub>build · SBOM · provenance</sub>"]
         ghcr[("GHCR<br/><sub>ghcr.io/hubernicolas/*</sub>")]
@@ -40,7 +41,7 @@ flowchart LR
         traefik["Traefik<br/><sub>TLS via Let's Encrypt</sub>"]
         coolify["Coolify"]
         td["tower-defense<br/><sub>client · server</sub>"]
-        tdr["tower-defense-remastered<br/><sub>nginx</sub>"]
+        tdr["tower-defense-remastered<br/>okcupid-explorer<br/><sub>nginx</sub>"]
         sdg["sdg-tag-heroes<br/><sub>frontend · api · mariadb<br/>mongodb · qdrant</sub>"]
     end
 
@@ -64,8 +65,8 @@ Nuxt build alone needs 4 GB of heap) off the machine that runs three databases, 
 rollbacks into changing one tag. Images get an SBOM and a signed build provenance attestation.
 
 **The app repositories stay untouched.** They are archived study projects. Production Dockerfiles that the
-repositories lack (the SDG Tag Heroes API, Tower Defense Remastered) live in [`images/`](images); the ones that exist
-are used as they are. [`images/catalog.json`](images/catalog.json) maps every image to its repository, context and
+repositories lack live in [`images/`](images): the SDG Tag Heroes API, and one shared image for static Vite apps
+(Tower Defense Remastered, OkCupid Explorer). The ones that exist are used as they are. [`images/catalog.json`](images/catalog.json) maps every image to its repository, context and
 Dockerfile.
 
 **Reproducible server setup.** The server is ordered once in the Contabo panel. Everything after that is one
@@ -111,7 +112,7 @@ Memory budget on the 12 GB server (limits in the compose files):
 | SDG Tag Heroes: API (PyTorch, sentence-transformers) | 4 GB |
 | SDG Tag Heroes: MariaDB · MongoDB · Qdrant · frontend | 1 · 2 · 1.5 · 0.25 GB |
 | Tower Defense: server (JVM) · client | 0.5 GB · 64 MB |
-| Tower Defense Remastered | 32 MB |
+| Tower Defense Remastered · OkCupid Explorer | 32 MB each |
 
 The limits are ceilings, not reservations; the real use is lower, and 4 GB of swap absorbs peaks.
 
@@ -133,7 +134,8 @@ The limits are ceilings, not reservations; the real use is lower, and 4 GB of sw
 - A VPS with Ubuntu 24.04 and at least 8 GB RAM (here: Contabo Cloud VPS 6, EU location, NVMe storage, no control
   panel)
 - A domain whose DNS you control
-- The app repositories on GitHub: `tower-defense`, `tower-defense-remastered`, `sdg-tag-heroes`
+- The app repositories on GitHub: `sdg-tag-heroes`, `tower-defense-remastered`, `okcupid-explorer` (and later
+  `tower-defense`)
 
 ### 1. Prepare the server
 
@@ -195,6 +197,7 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 |---|---|---|---|
 | SDG Tag Heroes | `/stacks/sdg-tag-heroes/compose.yaml` | frontend → `https://sdg-tag-heroes.<domain>`, api → `https://sdg-tag-heroes-api.<domain>` | `sdg-tag-heroes` |
 | Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
+| OkCupid Explorer | `/stacks/okcupid-explorer/compose.yaml` | app → `https://okcupid-explorer.<domain>` | `okcupid-explorer` |
 | Tower Defense (planned) | `/stacks/tower-defense/compose.yaml` | client → `https://tower-defense.<domain>`, server → `https://tower-defense-api.<domain>` | `tower-defense` |
 
 The **tag** matters: the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from

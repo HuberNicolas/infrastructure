@@ -21,8 +21,8 @@
     "stack": "tower-defense-remastered",
     "repository": "HuberNicolas/tower-defense-remastered",
     "context": ".",
-    "dockerfile": "infrastructure/images/tower-defense-remastered/Dockerfile",
-    "build_contexts": "config=infrastructure/images/tower-defense-remastered"
+    "dockerfile": "infrastructure/images/static-site/Dockerfile",
+    "build_contexts": "config=infrastructure/images/static-site"
   },
   {
     "name": "sdg-tag-heroes-api",
@@ -37,5 +37,13 @@
     "repository": "HuberNicolas/sdg-tag-heroes",
     "context": ".",
     "dockerfile": "source/deploy/frontend.prod.Dockerfile"
+  },
+  {
+    "name": "okcupid-explorer",
+    "stack": "okcupid-explorer",
+    "repository": "HuberNicolas/okcupid-explorer",
+    "context": "frontend",
+    "dockerfile": "infrastructure/images/static-site/Dockerfile",
+    "build_contexts": "config=infrastructure/images/static-site"
   }
 ]

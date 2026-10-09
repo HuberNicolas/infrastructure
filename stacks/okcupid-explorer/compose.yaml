@@ -1,0 +1,16 @@
+# OkCupid Explorer (Project Eros): questionnaire and PCA map of 842 OkCupid profiles, a static Vue app that runs
+# entirely in the browser. Also published on GitHub Pages; this is the same build under its own domain.
+#
+# Coolify: resource type "Docker Compose", this file, domain
+#   app → https://okcupid-explorer.<domain>:8080
+
+services:
+  app:
+    image: ghcr.io/hubernicolas/okcupid-explorer:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      - SERVICE_URL_APP_8080
+    deploy:
+      resources:
+        limits:
+          memory: 32M
