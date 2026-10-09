@@ -21,8 +21,11 @@ mkdir -p transfer
 source env/mariadb.env && docker exec mariadb-database mariadb-dump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction igcl | gzip > transfer/igcl.sql.gz
 ```
 
+MongoDB holds two databases: `sdg_database` (SDG goals and targets) and `sdg_explanations` (the highlights while
+labeling):
+
 ```bash
-source env/mongodb.env && docker exec mongodb-database mongodump -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --db sdg_database --archive --gzip > transfer/sdg_database.archive.gz
+source env/mongodb.env && for db in sdg_database sdg_explanations; do docker exec mongodb-database mongodump -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --db $db --archive --gzip > transfer/$db.archive.gz; done
 ```
 
 ```bash
@@ -64,7 +67,7 @@ gunzip -c transfer/igcl.sql.gz | docker exec -i $MARIADB sh -c 'mariadb -uroot -
 ```
 
 ```bash
-docker exec -i $MONGODB sh -c 'mongorestore -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --archive --gzip --drop' < transfer/sdg_database.archive.gz
+for db in sdg_database sdg_explanations; do docker exec -i $MONGODB sh -c 'mongorestore -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --archive --gzip --drop' < transfer/$db.archive.gz; done
 ```
 
 Qdrant has no curl in its image, so a throwaway curl container joins the stack network:
