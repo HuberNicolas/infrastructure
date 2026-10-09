@@ -1,4 +1,5 @@
-# SDG Tag Heroes (master's thesis, UZH): Nuxt frontend, FastAPI backend, MariaDB, MongoDB and Qdrant.
+# SDG Tag Heroes (master's thesis, UZH): Nuxt frontend, FastAPI backend, MariaDB, MongoDB and Qdrant. The images are
+# built from the branch redesign/dark-light-theme (images/catalog.json).
 # Only the frontend and the API are public; the databases are reachable inside the stack network only
 # (for maintenance: SSH tunnel, see docs/sdg-tag-heroes-data.md).
 #
@@ -57,8 +58,12 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: "30"
       # Aurora (thesis data) or Dvdblk (dummy dataset)
       PREDICTION_MODEL: ${PREDICTION_MODEL:-Dvdblk}
-      # Optional: only the GPT features need it
+      # GPT assistant: "openai" (needs OPENAI_API_KEY) or "ollama" (OLLAMA_BASE_URL); without either, only the
+      # assistant's features fail
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
     volumes:
       - api-models:/data/api
       - api-cache:/cache

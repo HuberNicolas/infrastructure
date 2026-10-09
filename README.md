@@ -17,7 +17,7 @@
 
 | App | Project | Stack | URL |
 |---|---|---|---|
-| **SDG Tag Heroes** | Master's thesis, UZH | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` |
+| **SDG Tag Heroes** | Master's thesis, UZH (branch `redesign/dark-light-theme`) | Nuxt 3 · FastAPI · PyTorch · MariaDB · MongoDB · Qdrant | `sdg-tag-heroes.<domain>` |
 | **Tower Defense Remastered** | The 2021 game, rewritten in 2026 | Vite · React 19 · TypeScript (static) | `towers.<domain>` |
 | **OkCupid Explorer** | Group project, UZH, 2022, rebuilt in 2026 | Vite · Vue 3 · ECharts (static) | `okcupid-explorer.<domain>` |
 
@@ -237,8 +237,9 @@ jobs:
 
 ## Known limitations
 
-- **The SDG Tag Heroes API image is large (several GB)**: `torch==2.1.1` from PyPI brings CUDA libraries the CPU
-  server never uses. A CPU-only torch build would cut that, but it changes the thesis lockfile.
+- **The SDG Tag Heroes API needs PyTorch** for its embeddings (similarity search, user coordinates on the map). The
+  image installs the CPU build of the same version (`torch==2.1.1+cpu`) instead of the PyPI wheel with its 2 GB of
+  CUDA libraries, which cuts the image from about 3 GB to under 1 GB compressed; the thesis lockfile stays unchanged.
 - **Single server, no high availability.** An outage takes all apps down until the server is back or restored; for
   portfolio projects that is the right trade-off.
 - **No automatic off-server backups yet.** Contabo snapshots live on the same host. For the thesis data, copy the
