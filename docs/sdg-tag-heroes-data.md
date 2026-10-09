@@ -91,5 +91,6 @@ rm -rf /root/transfer /tmp/umap_model
 
 ## Backups
 
-The whole server is backed up daily by Hetzner (7 days). For a logical backup of the game state, repeat the export
-commands of step 1 on the server (with the container variables of step 3) and copy the files off the server.
+Take a Contabo snapshot before risky changes (two are included; they live on the same host). For a backup that
+survives the server, repeat the export commands of step 1 on the server (with the container variables of step 3) and
+copy the files off the server.

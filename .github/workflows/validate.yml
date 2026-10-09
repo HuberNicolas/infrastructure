@@ -9,17 +9,11 @@ permissions:
   contents: read
 
 jobs:
-  opentofu:
+  shell:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra
     steps:
       - uses: actions/checkout@v5
-      - uses: opentofu/setup-opentofu@v1
-      - run: tofu fmt -check -recursive
-      - run: tofu init -backend=false
-      - run: tofu validate
+      - run: shellcheck bootstrap/*.sh
 
   compose:
     runs-on: ubuntu-latest

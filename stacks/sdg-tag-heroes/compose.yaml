@@ -69,12 +69,12 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3G
+          memory: 4G
 
   mariadb:
     image: mariadb:11.4
     restart: unless-stopped
-    command: --innodb-buffer-pool-size=256M
+    command: --innodb-buffer-pool-size=512M
     environment:
       <<: *mariadb-env
       MARIADB_ROOT_PASSWORD: ${SERVICE_PASSWORD_MARIADBROOT}
@@ -91,13 +91,13 @@ services:
     deploy:
       resources:
         limits:
-          memory: 768M
+          memory: 1G
 
   mongodb:
     image: mongo:8.0
     restart: unless-stopped
-    # Default cache is half of the host RAM; the explanations do not need that much
-    command: --wiredTigerCacheSizeGB 0.5
+    # Default cache is half of the host RAM; leave room for the other services
+    command: --wiredTigerCacheSizeGB 1
     environment:
       <<: *mongodb-env
     volumes:
@@ -111,7 +111,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 2G
 
   qdrant:
     # Same minor version as the thesis snapshots (v1.12.1)
@@ -128,7 +128,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 1536M
 
 volumes:
   api-models:
