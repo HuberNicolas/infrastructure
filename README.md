@@ -192,7 +192,9 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 | Tower Defense Remastered | `/stacks/tower-defense-remastered/compose.yaml` | game → `https://towers.<domain>` | `tower-defense-remastered` |
 | OkCupid Explorer | `/stacks/okcupid-explorer/compose.yaml` | app → `https://okcupid-explorer.<domain>` | `okcupid-explorer` |
 
-The **tag** matters: the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from
+Coolify asks for each domain as protocol (`https`), domain (the hostname only) and port; the port is the one in
+`expose` of the compose file (8080 for the static apps, 3000 for the frontend, 8001 for the API). The **tag** matters:
+the Images workflow deploys by tag. Set the environment variables of SDG Tag Heroes from
 [`stacks/sdg-tag-heroes/.env.example`](stacks/sdg-tag-heroes/.env.example), deploy, then
 [load its data](docs/sdg-tag-heroes-data.md).
 

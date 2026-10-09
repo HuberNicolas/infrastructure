@@ -3,8 +3,8 @@
 # (for maintenance: SSH tunnel, see docs/sdg-tag-heroes-data.md).
 #
 # Coolify: resource type "Docker Compose", this file, domains
-#   frontend → https://sdg-tag-heroes.<domain>:3000
-#   api      → https://sdg-tag-heroes-api.<domain>:8001
+#   frontend → protocol https, domain sdg-tag-heroes.<domain>, port 3000
+#   api      → protocol https, domain sdg-tag-heroes-api.<domain>, port 8001
 # SERVICE_PASSWORD_* and SERVICE_BASE64_* are generated once by Coolify and kept across deployments.
 # Environment variables to set by hand: see .env.example.
 
@@ -21,6 +21,8 @@ services:
   frontend:
     image: ghcr.io/hubernicolas/sdg-tag-heroes-frontend:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    expose:
+      - "3000"
     environment:
       # Declares the public URL of this service on port 3000 (Coolify magic variable)
       PUBLIC_URL: ${SERVICE_URL_FRONTEND_3000}
@@ -38,6 +40,8 @@ services:
   api:
     image: ghcr.io/hubernicolas/sdg-tag-heroes-api:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    expose:
+      - "8001"
     environment:
       <<: [*mariadb-env, *mongodb-env]
       PUBLIC_URL: ${SERVICE_URL_API_8001}
