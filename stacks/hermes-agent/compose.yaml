@@ -2,20 +2,15 @@
 # uses an online model provider (OpenRouter, OpenAI, Anthropic, Nous Portal, …). Not a public app: no domain, no
 # published port. The gateway only connects outwards, to the model provider and the messenger.
 #
-# Isolation: the agent's tools (shell, files, browser) run inside this container only. No Docker socket and no host
-# folders are mounted, and Coolify gives the stack its own network, so the agent cannot reach the other apps'
-# databases. Everything it keeps (config, API keys, memory, skills) is in the volume hermes-data.
+# Concept, security model, setup and operations: docs/hermes-agent.md. In short, the agent's tools (shell, files,
+# browser) run inside this container only, as a non-root user that cannot gain privileges; no Docker socket and no
+# host folders are mounted; and the label below makes the host firewall (bootstrap/setup.sh, egress-guard) limit the
+# container to the internet: no access to this server (SSH, Coolify) or to any private network.
 #
-# Coolify: resource type "Docker Compose", this file, no domain. First setup, after the first deployment, on the
-# server (the wizard asks for the model provider's key and the messenger):
+# Coolify: resource type "Docker Compose", this file, no domain. First setup, after the first deployment:
 #   docker exec -it $(docker ps -qf name=^hermes-) hermes setup
 # then restart the resource in Coolify. Call `hermes`, not /opt/hermes/.venv/bin/hermes: the image's wrapper drops
 # from root to the hermes user, so files the CLI writes stay readable for the gateway.
-# If the CLI says "install state is not writable", or the gateway logs "Permission denied: /opt/data/.env" and the bot
-# does not answer, files in the volume belong to root (the first start leaves its install lock to root in v0.21.6,
-# and a CLI started without the wrapper writes .env and auth.json as root). Give them back and restart:
-#   docker exec $(docker ps -qf name=^hermes-) chown -R hermes:hermes /opt/data
-# Docs: https://github.com/NousResearch/hermes-agent
 
 services:
   hermes:
@@ -28,10 +23,28 @@ services:
       HERMES_GID: "10000"
     volumes:
       - hermes-data:/opt/data
+    labels:
+      - infrastructure.egress=internet-only
+    # setuid programs (su, mount, …) cannot raise privileges; the agent's processes run as UID 10000 without
+    # capabilities. The init (s6, as root) keeps only what it needs to set up the volume and drop to the hermes user
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETUID
+      - SETGID
+      - KILL
     deploy:
       resources:
         limits:
+          # Leaves the other apps 4 of the 6 cores and most of the memory, whatever the agent runs
+          cpus: "2"
           memory: 2G
+          pids: 512
 
 volumes:
   hermes-data:

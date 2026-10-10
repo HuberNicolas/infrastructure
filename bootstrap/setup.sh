@@ -99,6 +99,64 @@ ExecStart=/usr/local/sbin/coolify-port-guard
 [Install]
 WantedBy=docker.service
 EOF
+# Containers labelled infrastructure.egress=internet-only (Hermes Agent) may reach the internet, but not this server
+# (SSH, the Coolify ports) and no private network (other containers, published ports, which Docker translates to
+# container addresses). Their addresses change on every deployment, so a watcher rebuilds the rules whenever such a
+# container starts or stops, and a timer repeats it in case a firewall reload removed the jumps
+log "Limiting labelled containers to the internet"
+cat > /usr/local/sbin/egress-guard <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+private=(10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 169.254.0.0/16 127.0.0.0/8)
+for chain in EGRESS-GUARD-FWD EGRESS-GUARD-IN; do
+  iptables -N "$chain" 2>/dev/null || iptables -F "$chain"
+done
+iptables -N DOCKER-USER 2>/dev/null || true
+iptables -C DOCKER-USER -j EGRESS-GUARD-FWD 2>/dev/null || iptables -I DOCKER-USER -j EGRESS-GUARD-FWD
+iptables -C INPUT -j EGRESS-GUARD-IN 2>/dev/null || iptables -I INPUT -j EGRESS-GUARD-IN
+for id in $(docker ps -q --filter label=infrastructure.egress=internet-only); do
+  for ip in $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' "$id"); do
+    for net in "${private[@]}"; do
+      iptables -A EGRESS-GUARD-FWD -s "$ip" -d "$net" -m conntrack --ctstate NEW -j DROP
+    done
+    iptables -A EGRESS-GUARD-IN -s "$ip" -m conntrack --ctstate NEW -j DROP
+  done
+done
+EOF
+chmod 755 /usr/local/sbin/egress-guard
+cat > /etc/systemd/system/egress-guard.service <<'EOF'
+[Unit]
+Description=Limit labelled containers to the internet (rebuilt on container start and stop)
+After=docker.service coolify-port-guard.service
+PartOf=docker.service
+
+[Service]
+ExecStartPre=/usr/local/sbin/egress-guard
+ExecStart=/bin/sh -c 'docker events --filter type=container --filter label=infrastructure.egress=internet-only --filter event=start --filter event=die --format x | while read -r _; do /usr/local/sbin/egress-guard; done'
+Restart=always
+
+[Install]
+WantedBy=docker.service
+EOF
+cat > /etc/systemd/system/egress-guard-refresh.service <<'EOF'
+[Unit]
+Description=Reapply the egress guard rules
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/egress-guard
+EOF
+cat > /etc/systemd/system/egress-guard-refresh.timer <<'EOF'
+[Unit]
+Description=Reapply the egress guard rules every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+EOF
 systemctl daemon-reload
 
 log "Installing Coolify"
@@ -111,6 +169,8 @@ fi
 
 systemctl enable coolify-port-guard.service
 systemctl restart coolify-port-guard.service
+systemctl enable egress-guard.service egress-guard-refresh.timer
+systemctl restart egress-guard.service egress-guard-refresh.timer
 
 log "Done"
 cat <<'EOF'
