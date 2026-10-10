@@ -4,7 +4,7 @@
 through Telegram, runs shell commands, reads and writes files, browses the web, remembers across sessions and runs
 scheduled tasks. It runs here as a private stack ([`stacks/hermes-agent`](../stacks/hermes-agent/compose.yaml)) next
 to the public apps, so it has to be contained: an agent follows instructions from text it reads, and not all of that
-text comes from its owner.
+text comes from its owner. What it could take over: [ideas](hermes-ideas.md).
 
 ## Concept
 

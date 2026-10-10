@@ -126,7 +126,7 @@ The limits are ceilings, not reservations; the real use is lower, and 4 GB of sw
 | [`images/`](images) | [`catalog.json`](images/catalog.json) of all images, and the Dockerfiles the app repositories lack |
 | [`.github/workflows/images.yml`](.github/workflows/images.yml) | Build, push and deploy |
 | [`.github/workflows/validate.yml`](.github/workflows/validate.yml) | shellcheck, `docker compose config`, hadolint |
-| [`docs/`](docs) | [Deploying an app](docs/deploying-an-app.md) · [Hermes Agent](docs/hermes-agent.md) · [Loading the SDG Tag Heroes data](docs/sdg-tag-heroes-data.md) |
+| [`docs/`](docs) | [Deploying an app](docs/deploying-an-app.md) · [Hermes Agent](docs/hermes-agent.md) · [Hermes ideas](docs/hermes-ideas.md) · [Loading the SDG Tag Heroes data](docs/sdg-tag-heroes-data.md) |
 
 ## Setup
 
