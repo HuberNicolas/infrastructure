@@ -11,8 +11,10 @@
 #   docker exec -it $(docker ps -qf name=^hermes-) hermes setup
 # then restart the resource in Coolify. Call `hermes`, not /opt/hermes/.venv/bin/hermes: the image's wrapper drops
 # from root to the hermes user, so files the CLI writes stay readable for the gateway.
-# If the CLI says "install state is not writable", the first start left its lock file to root (seen in v0.21.6):
-#   docker exec $(docker ps -qf name=^hermes-) sh -c 'chown hermes:hermes /opt/data/installs/*/.install.lock'
+# If the CLI says "install state is not writable", or the gateway logs "Permission denied: /opt/data/.env" and the bot
+# does not answer, files in the volume belong to root (the first start leaves its install lock to root in v0.21.6,
+# and a CLI started without the wrapper writes .env and auth.json as root). Give them back and restart:
+#   docker exec $(docker ps -qf name=^hermes-) chown -R hermes:hermes /opt/data
 # Docs: https://github.com/NousResearch/hermes-agent
 
 services:
