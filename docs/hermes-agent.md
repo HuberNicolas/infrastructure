@@ -150,6 +150,7 @@ Also keep in mind:
 |---|---|
 | Logs | Coolify → resource → logs, or `docker logs $(docker ps -qf name=^hermes-)`; detailed: `logs/gateway.log`, `logs/agent.log`, `logs/errors.log` in the volume |
 | Status and checks | `docker exec $(docker ps -qf name=^hermes-) hermes doctor` |
+| Costs | In Telegram: `/usage` (this session, plus the credit left at the provider, read live) and `/insights 7` (tokens, cache hit rate, estimated cost and models of the last 7 days). The same from the shell: `hermes insights --days 7`. Hermes estimates; the exact bill is OpenRouter → Activity |
 | Change the model | `docker exec -it $(docker ps -qf name=^hermes-) hermes model` |
 | Update | Raise the image tag in the compose file (Dependabot proposes it), push, redeploy |
 | Back up | `docker run --rm -v <uuid>_hermes-data:/data -v /root:/backup alpine tar czf /backup/hermes-data.tgz -C /data .`, then copy it off the server (it contains the API keys) |
