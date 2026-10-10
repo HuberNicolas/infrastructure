@@ -8,8 +8,12 @@
 #
 # Coolify: resource type "Docker Compose", this file, no domain. First setup, after the first deployment, on the
 # server (the wizard asks for the model provider's key and the messenger):
-#   docker exec -it $(docker ps -qf name=^hermes-) /opt/hermes/.venv/bin/hermes setup
-# then restart the resource in Coolify. Docs: https://github.com/NousResearch/hermes-agent
+#   docker exec -it $(docker ps -qf name=^hermes-) hermes setup
+# then restart the resource in Coolify. Call `hermes`, not /opt/hermes/.venv/bin/hermes: the image's wrapper drops
+# from root to the hermes user, so files the CLI writes stay readable for the gateway.
+# If the CLI says "install state is not writable", the first start left its lock file to root (seen in v0.21.6):
+#   docker exec $(docker ps -qf name=^hermes-) sh -c 'chown hermes:hermes /opt/data/installs/*/.install.lock'
+# Docs: https://github.com/NousResearch/hermes-agent
 
 services:
   hermes:

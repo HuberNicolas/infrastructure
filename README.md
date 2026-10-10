@@ -124,7 +124,7 @@ The limits are ceilings, not reservations; the real use is lower, and 4 GB of sw
 | [`images/`](images) | [`catalog.json`](images/catalog.json) of all images, and the Dockerfiles the app repositories lack |
 | [`.github/workflows/images.yml`](.github/workflows/images.yml) | Build, push and deploy |
 | [`.github/workflows/validate.yml`](.github/workflows/validate.yml) | shellcheck, `docker compose config`, hadolint |
-| [`docs/`](docs) | [Loading the SDG Tag Heroes data](docs/sdg-tag-heroes-data.md) |
+| [`docs/`](docs) | [Deploying an app](docs/deploying-an-app.md) · [Loading the SDG Tag Heroes data](docs/sdg-tag-heroes-data.md) |
 
 ## Setup
 
@@ -183,12 +183,14 @@ One wildcard record covers all apps and the Coolify dashboard:
 | Secret | `COOLIFY_TOKEN` | The Coolify API token |
 | Secret | `SOURCE_REPOS_TOKEN` | Only while app repositories are private: fine-grained token, *Contents: read* on them |
 
-Run **Actions → Images → Run workflow** with `all`. After the first push, make the GHCR packages public
-(Package settings → Change visibility), or log the server in to GHCR with a read-only token.
+Run **Actions → Images → Run workflow** with `all`. Packages built from this public repository are public, so the
+server pulls them without a login.
 
 ### 5. One resource per stack
 
-In Coolify: Project → New resource → *Docker Compose* from this repository, branch `main`, and:
+In Coolify: Project → New resource → *Docker Compose* from this repository, branch `main`, and the values below. The
+step by step guide, including the pitfalls (domain fields, saving variables, deploying before the image exists), is
+[Deploying an app](docs/deploying-an-app.md).
 
 | Stack | Compose file | Domains (service → URL) | Tag |
 |---|---|---|---|
@@ -197,9 +199,7 @@ In Coolify: Project → New resource → *Docker Compose* from this repository, 
 | OkCupid Explorer | `/stacks/okcupid-explorer/compose.yaml` | app → `https://okcupid-explorer.<domain>` | `okcupid-explorer` |
 | Hermes Agent | `/stacks/hermes-agent/compose.yaml` | none | `hermes-agent` |
 
-Coolify asks for each domain as protocol (`https`), domain (the hostname only) and port; the port is the one in
-`expose` of the compose file (8080 for the static apps, 3000 for the frontend, 8001 for the API). The **tag** matters:
-the Images workflow deploys by tag. Hermes Agent needs a one-time setup after its first deployment; see the comment
+Ports for the domains: 8080 for the static apps, 3000 for the frontend, 8001 for the API. Hermes Agent needs a one-time setup after its first deployment; see the comment
 at the top of its compose file. Set the environment variables of SDG Tag Heroes from
 [`stacks/sdg-tag-heroes/.env.example`](stacks/sdg-tag-heroes/.env.example), deploy, then
 [load its data](docs/sdg-tag-heroes-data.md).
@@ -230,6 +230,7 @@ jobs:
 
 | Task | How |
 |---|---|
+| Add an app | [Deploying an app](docs/deploying-an-app.md) |
 | Deploy a new version | Push to the app repository (with step 6), or run the Images workflow |
 | Roll back | Coolify → resource → Environment: `IMAGE_TAG=sha-<commit>`, redeploy |
 | Logs, shell, restart | Coolify → resource → service |
