@@ -12,16 +12,14 @@
     "stack": "sdg-tag-heroes",
     "repository": "HuberNicolas/sdg-tag-heroes",
     "context": ".",
-    "dockerfile": "infrastructure/images/sdg-tag-heroes-api/Dockerfile",
-    "ref": "redesign/dark-light-theme"
+    "dockerfile": "infrastructure/images/sdg-tag-heroes-api/Dockerfile"
   },
   {
     "name": "sdg-tag-heroes-frontend",
     "stack": "sdg-tag-heroes",
     "repository": "HuberNicolas/sdg-tag-heroes",
     "context": ".",
-    "dockerfile": "source/deploy/frontend.prod.Dockerfile",
-    "ref": "redesign/dark-light-theme"
+    "dockerfile": "source/deploy/frontend.prod.Dockerfile"
   },
   {
     "name": "okcupid-explorer",

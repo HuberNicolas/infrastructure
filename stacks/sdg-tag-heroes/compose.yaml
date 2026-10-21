@@ -1,5 +1,4 @@
-# SDG Tag Heroes (master's thesis, UZH): Nuxt frontend, FastAPI backend, MariaDB, MongoDB and Qdrant. The images are
-# built from the branch redesign/dark-light-theme (images/catalog.json).
+# SDG Tag Heroes (master's thesis, UZH): Nuxt frontend, FastAPI backend, MariaDB, MongoDB and Qdrant.
 # Only the frontend and the API are public; the databases are reachable inside the stack network only
 # (for maintenance: SSH tunnel, see docs/sdg-tag-heroes-data.md).
 #
