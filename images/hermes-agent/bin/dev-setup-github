@@ -4,7 +4,8 @@
 #
 #   docker exec -it -u hermes <hermes container> dev-setup-github
 #
-# Use the token of the separate bot account (classic token, scope `repo` only), never your own: the bot is a
+# Use the token of the separate bot account (classic token, scopes `repo` and `read:org`; the GitHub CLI requires the
+# latter to sign in), never your own: the bot is a
 # collaborator on the allowed repositories only, and the ruleset on main stops it from merging.
 set -euo pipefail
 

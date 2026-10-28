@@ -166,7 +166,7 @@ GitHub is the real boundary, the local layers only stop the agent early:
 |---|---|
 | Bot account | Hermes pushes as its own GitHub account, a collaborator with write access on chosen repositories only |
 | Ruleset on `main` | Pull request with one approval, no force push, no deletion; only repository admins bypass. The bot cannot approve its own pull requests, so it can never merge |
-| Bot token | Classic token with `repo` only: no `workflow`, no admin, no `delete_repo` |
+| Bot token | Classic token with `repo` and `read:org` (the GitHub CLI requires it): no `workflow`, no admin, no `delete_repo` |
 | Git guard and Hermes `approvals.deny` | The same git and gh rules in Claude Code and in Hermes |
 
 Setup steps, the daily workflow from the phone and prompts are in the private handbook repository
