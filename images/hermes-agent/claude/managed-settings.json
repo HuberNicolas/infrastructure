@@ -16,8 +16,7 @@
       "Bash(gh api *)",
       "Bash(gh auth token*)",
       "Bash(gh repo delete*)",
-      "Edit(**/.github/workflows/**)",
-      "Write(**/.github/workflows/**)"
+      "Edit(**/.github/workflows/**)"
     ],
     "disableBypassPermissionsMode": "disable"
   },
