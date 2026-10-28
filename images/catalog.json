@@ -28,5 +28,12 @@
     "context": "frontend",
     "dockerfile": "infrastructure/images/static-site/Dockerfile",
     "build_contexts": "config=infrastructure/images/static-site"
+  },
+  {
+    "name": "hermes-agent",
+    "stack": "hermes-agent",
+    "repository": "HuberNicolas/infrastructure",
+    "context": "images/hermes-agent",
+    "dockerfile": "source/images/hermes-agent/Dockerfile"
   }
 ]

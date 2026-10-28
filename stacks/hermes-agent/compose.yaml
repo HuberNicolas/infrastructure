@@ -14,7 +14,8 @@
 
 services:
   hermes:
-    image: nousresearch/hermes-agent:v0.21.6
+    # nousresearch/hermes-agent plus Claude Code, gh and the git guard (images/hermes-agent)
+    image: ghcr.io/hubernicolas/hermes-agent:${IMAGE_TAG:-latest}
     restart: unless-stopped
     # The gateway is supervised by s6 inside the image and restarts on its own
     command: ["gateway", "run"]
@@ -41,9 +42,9 @@ services:
     deploy:
       resources:
         limits:
-          # Leaves the other apps 4 of the 6 cores and most of the memory, whatever the agent runs
+          # Leaves the other apps 4 of the 6 cores; 4 GB for Claude Code with npm installs and builds
           cpus: "2"
-          memory: 2G
+          memory: 4G
           pids: 512
 
 volumes:
