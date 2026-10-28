@@ -35,5 +35,19 @@
     "repository": "HuberNicolas/infrastructure",
     "context": "images/hermes-agent",
     "dockerfile": "source/images/hermes-agent/Dockerfile"
+  },
+  {
+    "name": "genai-zurich-2027-backend",
+    "stack": "genai-zurich-2027",
+    "repository": "HuberNicolas/genai-zurich-2027",
+    "context": "backend",
+    "dockerfile": "source/backend/Dockerfile"
+  },
+  {
+    "name": "genai-zurich-2027-frontend",
+    "stack": "genai-zurich-2027",
+    "repository": "HuberNicolas/genai-zurich-2027",
+    "context": "frontend",
+    "dockerfile": "source/frontend/Dockerfile"
   }
 ]

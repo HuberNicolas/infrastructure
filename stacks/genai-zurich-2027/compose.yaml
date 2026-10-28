@@ -1,0 +1,37 @@
+# GenAI Zürich 2027 (private repository HuberNicolas/genai-zurich-2027), built by Hermes and Claude Code.
+# Contract with the repository: backend/Dockerfile serves the API on port 8000 under /api and keeps its data in /data;
+# frontend/Dockerfile serves the web app with nginx on port 8080 and forwards /api/ to http://backend:8000.
+# The Images workflow needs the secret SOURCE_REPOS_TOKEN (read access to the private repository).
+#
+# Coolify: resource type "Docker Compose", this file, domain
+#   frontend → protocol https, domain coach.<domain>, port 8080
+
+services:
+  frontend:
+    image: ghcr.io/hubernicolas/genai-zurich-2027-frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - SERVICE_URL_FRONTEND_8080
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  backend:
+    image: ghcr.io/hubernicolas/genai-zurich-2027-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "8000"
+    volumes:
+      - backend-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+volumes:
+  backend-data:
