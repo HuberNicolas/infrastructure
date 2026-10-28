@@ -169,6 +169,10 @@ GitHub is the real boundary, the local layers only stop the agent early:
 | Bot token | Classic token with `repo` and `read:org` (the GitHub CLI requires it): no `workflow`, no admin, no `delete_repo` |
 | Git guard and Hermes `approvals.deny` | The same git and gh rules in Claude Code and in Hermes |
 
+Hermes runs tool commands with `terminal.home_mode: real`, so they see the same home as the setup helpers
+(`/opt/data`: `~/.claude`, `~/.config/gh`, `~/work`). The default `auto` gives tools a separate home in containers
+(`/opt/data/home`), where the sign-ins are missing.
+
 Setup steps, the daily workflow from the phone and prompts are in the private handbook repository
 `HuberNicolas/vps-dev-handbook`; the skills Claude Code uses (`spec-pipeline`, `decision-log`, `ste-writing`) are in
 `HuberNicolas/claude-skills` and copied to `/opt/data/.claude/` in the volume.
