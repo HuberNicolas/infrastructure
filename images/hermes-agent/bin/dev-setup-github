@@ -13,7 +13,12 @@ set -euo pipefail
 
 read -rsp "GitHub token of the bot account: " token
 echo
-[[ -n "$token" ]] || { echo "No token entered." >&2; exit 1; }
+# Terminals can wrap a pasted value in bracketed-paste markers or add spaces and line breaks; keep only token characters
+token=$(printf '%s' "$token" | sed -e 's/\x1b\[20[01]~//g' | tr -cd 'A-Za-z0-9_')
+if [[ ! "$token" =~ ^(ghp_|github_pat_)[A-Za-z0-9_]{20,}$ ]]; then
+  echo "That does not look like a GitHub token (expected ghp_… or github_pat_…, got ${#token} characters). Nothing saved." >&2
+  exit 1
+fi
 printf '%s' "$token" | gh auth login --hostname github.com --git-protocol https --with-token
 unset token
 gh auth setup-git

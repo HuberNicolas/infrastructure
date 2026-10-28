@@ -9,7 +9,12 @@ set -euo pipefail
 
 read -rsp "Claude Code token (from 'claude setup-token'): " token
 echo
-[[ -n "$token" ]] || { echo "No token entered." >&2; exit 1; }
+# Terminals can wrap a pasted value in bracketed-paste markers or add spaces and line breaks; keep only token characters
+token=$(printf '%s' "$token" | sed -e 's/\x1b\[20[01]~//g' | tr -cd 'A-Za-z0-9_-')
+if [[ ! "$token" =~ ^sk-ant-[A-Za-z0-9_-]{40,}$ ]]; then
+  echo "That does not look like a Claude Code token (expected sk-ant-…, got ${#token} characters). Nothing saved." >&2
+  exit 1
+fi
 
 # Claude Code reads CLAUDE_CODE_OAUTH_TOKEN from the env block of its user settings
 TOKEN="$token" /usr/bin/python3 - <<'EOF'
