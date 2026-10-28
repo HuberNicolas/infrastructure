@@ -3,7 +3,9 @@
 # subscription (claude setup-token). Built from this folder as context.
 #
 # The git guard and its policy live in /etc/claude-code, the managed settings directory of Claude Code on Linux,
-# owned by root: the agent (UID 10000) can read but not change or disable them. See docs/hermes-agent.md.
+# owned by root: the agent (UID 10000) can read but not change or disable them. The policy lets Claude Code run shell
+# commands and edit files without asking (it runs unattended, inside this isolated container); deny rules and the
+# guard hook still apply first. See docs/hermes-agent.md.
 
 FROM nousresearch/hermes-agent:v0.21.6
 
