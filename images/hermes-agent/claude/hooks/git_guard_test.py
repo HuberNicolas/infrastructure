@@ -23,6 +23,9 @@ ALLOWED = [
     "gh repo clone HuberNicolas/genai-zurich-2027", "gh auth status",
     "npm test && git add . && git commit -m 'Fix test'", "cd app && git status | head",
     "echo 'git push origin main'", "python -m pytest",
+    "git push -u origin hermes/smoke-test 2>&1", "git push origin hermes/x > /tmp/push.log 2>&1",
+    "git status 2>/dev/null", "gh pr create --fill --base main 2>&1 | tail -5", "git push origin hermes/x &>/dev/null",
+    "git log --oneline > /tmp/log.txt", "npm test 2>&1 | tail -20",
 ]
 
 DENIED = [
@@ -45,6 +48,8 @@ DENIED = [
     "bash -c 'git push origin main'", "sh -c \"gh pr merge 1\"", "echo $(git push origin main)",
     "env GIT_TRACE=1 git push origin main", "timeout 30 git push origin main", "sudo git push origin main",
     "/usr/bin/git push origin main", "FOO=1 git push origin main", "git push 'origin' 'main",
+    "git push origin main 2>&1", "git push origin main > /tmp/log 2>&1", "git push --force origin hermes/x 2>&1",
+    "gh pr merge 1 2>&1 | tail", "git push origin hermes/x 2>&1; git push origin main",
 ]
 
 PATHS_DENIED = [

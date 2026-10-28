@@ -59,8 +59,13 @@ def deny(reason: str) -> None:
     sys.exit(2)
 
 
+REDIRECTION = re.compile(r"""\s(?:\d*>>?|&>>?|\d*<)\s*(?:&\d+|&-|"[^"]*"|'[^']*'|[^\s;&|<>]+)""")
+
+
 def segments(command: str) -> list[list[str]]:
     """Split a shell command into simple commands (tokens), roughly as a shell would."""
+    # Redirections (2>&1, > log, &>/dev/null, < file) are not arguments; drop them before splitting
+    command = REDIRECTION.sub(" ", " " + command)
     # Command substitutions and subshells are checked as commands of their own
     command = re.sub(r"\$\(|`|\(|\)", " ; ", command)
     lexer = shlex.shlex(command, posix=True, punctuation_chars=";&|<>")
