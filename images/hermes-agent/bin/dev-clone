@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Clones a repository into the workspace in the Hermes volume (/opt/data/work/<name>), or updates it if it is there.
+#
+#   docker exec -u hermes <hermes container> dev-clone HuberNicolas/genai-zurich-2027
+set -euo pipefail
+
+repo=${1:?Usage: dev-clone <owner/name>}
+target="$HOME/work/${repo##*/}"
+mkdir -p "$HOME/work"
+
+if [[ -d "$target/.git" ]]; then
+  git -C "$target" fetch --prune origin
+  echo "Updated $target"
+else
+  gh repo clone "$repo" "$target"
+  echo "Cloned to $target"
+fi
+git -C "$target" status --short --branch | head -1

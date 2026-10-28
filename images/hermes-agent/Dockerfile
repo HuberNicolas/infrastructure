@@ -31,12 +31,17 @@ RUN cd /tmp \
  && install -m 755 "gh_${GH_VERSION}_linux_amd64/bin/gh" /usr/local/bin/gh \
  && rm -rf /tmp/gh_*
 
+# Setup helpers: tokens are typed in hidden, never passed as arguments (see docs/hermes-agent.md)
+COPY --chmod=755 bin/ /usr/local/bin/
+
 COPY --chmod=644 claude/managed-settings.json /etc/claude-code/managed-settings.json
 COPY --chmod=755 claude/hooks/git_guard.py /etc/claude-code/hooks/git_guard.py
 COPY --chmod=644 claude/hooks/git_guard_test.py /tmp/git_guard_test.py
 
+# COPY --chmod also applies to the directories it creates; the hermes user must be able to enter them.
 # A broken guard must never ship
-RUN cp /tmp/git_guard_test.py /etc/claude-code/hooks/ \
+RUN chmod 755 /etc/claude-code /etc/claude-code/hooks \
+ && cp /tmp/git_guard_test.py /etc/claude-code/hooks/ \
  && /usr/bin/python3 /etc/claude-code/hooks/git_guard_test.py \
  && rm /etc/claude-code/hooks/git_guard_test.py /tmp/git_guard_test.py \
  && claude --version && gh --version && tmux -V

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Signs the GitHub CLI and git in with the bot account's token and sets the commit identity to the bot. The token is
+# read without echo and never appears on the command line or in a log.
+#
+#   docker exec -it -u hermes <hermes container> dev-setup-github
+#
+# Use the token of the separate bot account (classic token, scope `repo` only), never your own: the bot is a
+# collaborator on the allowed repositories only, and the ruleset on main stops it from merging.
+set -euo pipefail
+
+[[ "$(id -u)" == "10000" ]] || { echo "Run as the hermes user: docker exec -it -u hermes <container> dev-setup-github" >&2; exit 1; }
+
+read -rsp "GitHub token of the bot account: " token
+echo
+[[ -n "$token" ]] || { echo "No token entered." >&2; exit 1; }
+printf '%s' "$token" | gh auth login --hostname github.com --git-protocol https --with-token
+unset token
+gh auth setup-git
+
+login=$(gh api user --jq .login)
+id=$(gh api user --jq .id)
+git config --global user.name "$login"
+git config --global user.email "${id}+${login}@users.noreply.github.com"
+git config --global init.defaultBranch main
+git config --global pull.rebase false
+
+echo "Signed in as ${login}. Commits will be authored by ${login}."
+gh auth status

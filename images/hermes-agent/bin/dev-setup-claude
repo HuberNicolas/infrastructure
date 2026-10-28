@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Stores a Claude Code token (from `claude setup-token` on your own machine, valid one year) for the hermes user and
+# checks that it works. The token is read without echo and never appears on the command line or in a log.
+#
+#   docker exec -it -u hermes <hermes container> dev-setup-claude
+set -euo pipefail
+
+[[ "$(id -u)" == "10000" ]] || { echo "Run as the hermes user: docker exec -it -u hermes <container> dev-setup-claude" >&2; exit 1; }
+
+read -rsp "Claude Code token (from 'claude setup-token'): " token
+echo
+[[ -n "$token" ]] || { echo "No token entered." >&2; exit 1; }
+
+# Claude Code reads CLAUDE_CODE_OAUTH_TOKEN from the env block of its user settings
+TOKEN="$token" /usr/bin/python3 - <<'EOF'
+import json, os, pathlib
+path = pathlib.Path.home() / ".claude" / "settings.json"
+path.parent.mkdir(parents=True, exist_ok=True)
+settings = json.loads(path.read_text()) if path.exists() else {}
+settings.setdefault("env", {})["CLAUDE_CODE_OAUTH_TOKEN"] = os.environ["TOKEN"]
+path.write_text(json.dumps(settings, indent=2) + "\n")
+os.chmod(path, 0o600)
+EOF
+unset token
+
+echo "Saved. Testing (one short request on your subscription) ..."
+if answer=$(cd /tmp && claude -p "Reply with the single word OK." --max-turns 1 2>&1); then
+  echo "Claude Code answered: ${answer}"
+else
+  echo "The test failed: ${answer}" >&2
+  exit 1
+fi
