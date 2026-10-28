@@ -144,6 +144,35 @@ Also keep in mind:
 7. **First message:** search for the bot's username in Telegram (not @BotFather), tap **Start**, then write. Messages
    sent while the gateway was down are dropped on start (`drop_pending_on_cold_boot`).
 
+## Coding with Claude Code
+
+Hermes can delegate programming to [Claude Code](https://code.claude.com), its built-in `claude-code` skill runs it
+in the container (`claude -p "…"`, `claude -c -p "…"` to continue). Claude Code signs in with the owner's own Claude
+subscription: a token from `claude setup-token`, which Anthropic's terms allow for the unmodified Claude Code binary.
+Using the subscription directly as Hermes' model would not be allowed; Hermes itself stays on OpenRouter.
+
+The image [`images/hermes-agent`](../images/hermes-agent/Dockerfile) adds Claude Code, the GitHub CLI and tmux to the
+official image, plus:
+
+| Part | What it does |
+|---|---|
+| [`/etc/claude-code/managed-settings.json`](../images/hermes-agent/claude/managed-settings.json) | Claude Code's managed policy (owned by root, above every user setting): works unattended (shell, web, edits allowed), bypass mode disabled, deny rules for the worst git and gh commands |
+| [`git_guard.py`](../images/hermes-agent/claude/hooks/git_guard.py) | PreToolUse hook: pushes only to `hermes/*` branches, no force, delete, mirror, tags or `--no-verify`; no `git -c`, config writes, new remotes, `reset --hard`, `rebase`, `clean`, `branch -D`, `--amend`; `gh` only for pull requests, issues and viewing; no direct GitHub API calls; no edits in `.github/workflows/` or `.git/`. 97 tests run during the image build |
+| [`bin/dev-setup-claude`, `dev-setup-github`, `dev-clone`](../images/hermes-agent/bin) | Store the tokens (typed in hidden, never as arguments) and clone repositories into `~/work/` in the volume |
+
+GitHub is the real boundary, the local layers only stop the agent early:
+
+| Layer | Rule |
+|---|---|
+| Bot account | Hermes pushes as its own GitHub account, a collaborator with write access on chosen repositories only |
+| Ruleset on `main` | Pull request with one approval, no force push, no deletion; only repository admins bypass. The bot cannot approve its own pull requests, so it can never merge |
+| Bot token | Classic token with `repo` only: no `workflow`, no admin, no `delete_repo` |
+| Git guard and Hermes `approvals.deny` | The same git and gh rules in Claude Code and in Hermes |
+
+Setup steps, the daily workflow from the phone and prompts are in the private handbook repository
+`HuberNicolas/vps-dev-handbook`; the skills Claude Code uses (`spec-pipeline`, `decision-log`, `ste-writing`) are in
+`HuberNicolas/claude-skills` and copied to `/opt/data/.claude/` in the volume.
+
 ## Operations
 
 | Task | How |
