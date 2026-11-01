@@ -7,7 +7,7 @@
 # commands and edit files without asking (it runs unattended, inside this isolated container); deny rules and the
 # guard hook still apply first. See docs/hermes-agent.md.
 
-FROM nousresearch/hermes-agent:v0.21.6
+FROM nousresearch/hermes-agent:v0.22.5
 
 ARG CLAUDE_CODE_VERSION=2.1.312
 ARG GH_VERSION=2.103.3
