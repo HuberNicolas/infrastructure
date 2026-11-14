@@ -37,16 +37,16 @@
     "dockerfile": "source/images/hermes-agent/Dockerfile"
   },
   {
-    "name": "genai-zurich-2027-backend",
-    "stack": "genai-zurich-2027",
-    "repository": "HuberNicolas/genai-zurich-2027",
+    "name": "threat-radar-backend",
+    "stack": "threat-radar",
+    "repository": "HuberNicolas/threat-radar",
     "context": "backend",
     "dockerfile": "source/backend/Dockerfile"
   },
   {
-    "name": "genai-zurich-2027-frontend",
-    "stack": "genai-zurich-2027",
-    "repository": "HuberNicolas/genai-zurich-2027",
+    "name": "threat-radar-frontend",
+    "stack": "threat-radar",
+    "repository": "HuberNicolas/threat-radar",
     "context": "frontend",
     "dockerfile": "source/frontend/Dockerfile"
   }
